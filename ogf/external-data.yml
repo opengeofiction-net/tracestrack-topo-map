@@ -1,0 +1,66 @@
+# External shapefile layers for the Tracestrack Topo trial - see Admin:Elevation
+# process and the tile server guides. Same mechanism ogf-carto and cyclogf use,
+# but water polygons rather than land: Tracestrack draws the sea and leaves the
+# land as the background, where CyclOSM does the reverse.
+settings:
+  temp_schema: loading
+  schema: public
+  data_dir: data
+  database: ttopo
+  metadata_table: external_data
+sources:
+  water_polygons:
+    type: shp
+    url: https://data.opengeofiction.net/extracts/water-polygons-split-3857.zip
+    file: water-polygons-split-3857/water_polygons.shp
+    archive:
+      format: zip
+      files:
+        - water-polygons-split-3857/water_polygons.dbf
+        - water-polygons-split-3857/water_polygons.prj
+        - water-polygons-split-3857/water_polygons.shp
+        - water-polygons-split-3857/water_polygons.shx
+  simplified_water_polygons:
+    type: shp
+    url: https://data.opengeofiction.net/extracts/simplified-water-polygons-split-3857.zip
+    file: simplified-water-polygons-split-3857/simplified_water_polygons.shp
+    archive:
+      format: zip
+      files:
+        - simplified-water-polygons-split-3857/simplified_water_polygons.dbf
+        - simplified-water-polygons-split-3857/simplified_water_polygons.prj
+        - simplified-water-polygons-split-3857/simplified_water_polygons.shp
+        - simplified-water-polygons-split-3857/simplified_water_polygons.shx
+  icesheet_polygons:
+    type: shp
+    url: https://data.opengeofiction.net/extracts/antarctica-icesheet-polygons-3857.zip
+    file: antarctica-icesheet-polygons-3857/icesheet_polygons.shp
+    archive:
+      format: zip
+      files:
+        - antarctica-icesheet-polygons-3857/icesheet_polygons.dbf
+        - antarctica-icesheet-polygons-3857/icesheet_polygons.prj
+        - antarctica-icesheet-polygons-3857/icesheet_polygons.shp
+        - antarctica-icesheet-polygons-3857/icesheet_polygons.shx
+  icesheet_outlines:
+    type: shp
+    url: https://data.opengeofiction.net/extracts/antarctica-icesheet-outlines-3857.zip
+    file: antarctica-icesheet-outlines-3857/icesheet_outlines.shp
+    archive:
+      format: zip
+      files:
+        - antarctica-icesheet-outlines-3857/icesheet_outlines.dbf
+        - antarctica-icesheet-outlines-3857/icesheet_outlines.prj
+        - antarctica-icesheet-outlines-3857/icesheet_outlines.shp
+        - antarctica-icesheet-outlines-3857/icesheet_outlines.shx
+  ne_110m_admin_0_boundary_lines_land:
+    type: shp
+    url: https://data.opengeofiction.net/extracts/ne_110m_admin_0_boundary_lines_land.zip
+    file: ne_110m_admin_0_boundary_lines_land/ne_110m_admin_0_boundary_lines_land.shp
+    archive:
+      format: zip
+      files:
+        - ne_110m_admin_0_boundary_lines_land/ne_110m_admin_0_boundary_lines_land.dbf
+        - ne_110m_admin_0_boundary_lines_land/ne_110m_admin_0_boundary_lines_land.prj
+        - ne_110m_admin_0_boundary_lines_land/ne_110m_admin_0_boundary_lines_land.shp
+        - ne_110m_admin_0_boundary_lines_land/ne_110m_admin_0_boundary_lines_land.shx
