@@ -9,6 +9,13 @@ It is available as a featured layer on
 > for reference. It is not actively updated and may not work out of the box.
 > This repo is used mainly as an issue tracker.
 
+> **OpenGeofiction fork.** This branch renders
+> [OpenGeofiction](https://www.opengeofiction.net/)'s fictional planet, and puts
+> back the layers the stylesheets style but the project file never defined —
+> landcover below z10, boundaries, place labels, ferries, power, and the relief
+> ladder. See **[ogf/README.md](ogf/README.md)** for what was missing, what was
+> restored and from where, and what is still absent.
+
 ## Goals
 
 The map aims to be avant-garde and progressive, i.e. willing to change and
