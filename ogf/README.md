@@ -138,3 +138,37 @@ than a recovery of what is missing.
 
 `necountries` gives country outlines at z1-3, which is the one piece of the
 boundary story the base project can carry.
+
+## Labels and boundaries
+
+`placenames.mss` in the snapshot is openstreetmap-carto's file with everything
+after the variable header deleted — its first five lines are byte for byte
+osm-carto's, and the rules that followed went to `labels_topo` with `admin.mss`
+entirely. That is why the stub refers to `@admin-boundaries-narrow` and nothing
+in the project defines it.
+
+Both files are restored from osm-carto v5.9.0, along with the twelve layers they
+style: `admin-low-zoom`, `admin-mid-zoom`, `admin-high-zoom`, `admin-text`,
+`protected-areas`, `protected-areas-text`, `country-names`, `state-names`,
+`county-names`, `capital-names`, `placenames-medium` and `placenames-small`.
+
+They are **appended** to the layer list rather than slotted into it. The
+nearest-shared-predecessor rule that places the other restored layers puts these
+far too early — the layers the two projects have in common are mostly ground
+ones — and a label drawn early ends up under everything after it.
+
+This is a graft, and worth being honest about: the label cartography is
+osm-carto's, on a Tracestrack base. It is not a recovery of what Tracestrack
+draws. It is closer than it sounds, though, since their file was osm-carto's
+until the rules were cut out of it.
+
+`fonts.mss` gains the historic scripts, as the OGF CyclOSM patch adds them for
+the same reason: upstream leaves them out because OSM does not use them in name
+tags, and OGF's conlangs are written in them.
+
+Note — `scripts/get-fonts.py` is needed here. The style asks for the Noto "UI"
+variants, which Debian does not package, so Arabic and a dozen other scripts
+render as empty boxes without it. v5.9.0 ships `get-fonts.sh`; take the `.py`
+from v6.0.0, which is what the OGF CyclOSM servers use. Then symlink the fonts
+into renderd's `font_dir`, since this style declares no `font-directory` of its
+own and mapnik would otherwise never look there.

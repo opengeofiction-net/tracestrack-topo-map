@@ -42,6 +42,18 @@ AFTER = [
     ('text-point',            'amenity-line'),
 ]
 
+# Boundaries and labels, appended in osm-carto's own relative order rather than
+# slotted in. The nearest-shared-predecessor rule used above puts them far too
+# early - the layers these two projects have in common are mostly the ground
+# ones, so a label would end up under everything drawn after it. Labels go last.
+APPEND = [
+    'protected-areas',
+    'admin-low-zoom', 'admin-mid-zoom', 'admin-high-zoom',
+    'country-names', 'state-names', 'county-names', 'capital-names',
+    'placenames-medium', 'placenames-small',
+    'admin-text', 'protected-areas-text',
+]
+
 
 def block(layer):
     """One layer, in this project's own style: anchors rather than repeated
@@ -95,6 +107,16 @@ def main():
             nxt = re.search(r'^  - id: ', text[m.end():], flags=re.M)
             at = m.end() + (nxt.start() if nxt else len(text) - m.end())
             text = text[:at] + new + text[at:]
+        added.append(name)
+
+    for name in APPEND:
+        if re.search(r'^  - id: %s$' % re.escape(name), text, flags=re.M):
+            skipped.append(name)
+            continue
+        if name not in src:
+            skipped.append(name)
+            continue
+        text = text.rstrip('\n') + '\n' + block(src[name])
         added.append(name)
 
     open(mml_path, 'w').write(text)

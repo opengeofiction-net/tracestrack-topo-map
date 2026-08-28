@@ -40,6 +40,19 @@ s, n_ocean = re.subn(r'(- id: ocean-lz.*?properties:\n\s*minzoom: )9',
 s, n_land = re.subn(r'(- id: landcover\n.*?properties:\n\s*cache-features: true\n\s*minzoom: )12',
                     r'\g<1>10', s, flags=re.S)
 
+# ---- the label stylesheets ------------------------------------------------
+# placenames.mss in the snapshot is openstreetmap-carto's file with everything
+# after the variable header deleted - its first five lines are byte for byte
+# osm-carto's, and the rules that followed went to labels_topo. admin.mss went
+# with them entirely, which is why placenames.mss refers to
+# @admin-boundaries-narrow and nothing defines it. Both files are restored from
+# osm-carto v5.9.0 and declared here, admin last so boundaries draw over the
+# ground.
+for sheet in ('style/placenames.mss', 'style/admin.mss'):
+    if sheet not in s:
+        s = s.replace('  - style/contours.mss\n',
+                      '  - %s\n  - style/contours.mss\n' % sheet)
+
 # ---- relief and hillshade ------------------------------------------------
 # The snapshot carries OpenTopoMap's full ladder - a different raster per zoom
 # band - commented out because it ships no rasters, and contours.mss still
