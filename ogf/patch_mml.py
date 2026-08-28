@@ -40,26 +40,39 @@ s, n_ocean = re.subn(r'(- id: ocean-lz.*?properties:\n\s*minzoom: )9',
 s, n_land = re.subn(r'(- id: landcover\n.*?properties:\n\s*cache-features: true\n\s*minzoom: )12',
                     r'\g<1>10', s, flags=re.S)
 
-# ---- hillshade ------------------------------------------------------------
-# The snapshot carries a full OpenTopoMap relief and hillshade ladder, commented
-# out because it ships no rasters - and contours.mss still styles every one of
-# them. Uncomment the z8+ band and point it at the mosaic fetchDemData.sh
-# builds - the greyscale one, not shade.vrt, because contours.mss composites these
-# with grain-merge, which wants a neutral grey hillshade rather than the ramped
-# RGBA CyclOSM multiplies. The lower bands want relief-500/5000 and hillshade-500/5000, which we
-# publish per zone but do not currently mosaic, so they stay commented.
-block = re.search(r'((?:^#  - id: hillshade-90\n)(?:^#.*\n)*)', s, flags=re.M)
-n_hs = 0
-if block:
-    live = re.sub(r'^#', '', block.group(1), flags=re.M)
-    live = live.replace('"./otm-data/hillshade-90.tif"', '"%s"' % VRT)
-    live = re.sub(r'(minzoom: 8\n\s*)maxzoom: 17', r'\g<1>maxzoom: 19', live)
-    s = s[:block.start(1)] + live + s[block.end(1):]
-    n_hs = 1
+# ---- relief and hillshade ------------------------------------------------
+# The snapshot carries OpenTopoMap's full ladder - a different raster per zoom
+# band - commented out because it ships no rasters, and contours.mss still
+# styles every one of them. OGF publishes exactly that ladder per zone, so all
+# five are uncommented and pointed at the mosaics ogf/fetch-relief.sh builds.
+#
+# The mapping is not quite name for name: their hillshade-500 covers z5-7, which
+# is our hillshade-1000; their hillshade-90 is the fine band, which is the 1
+# arcsecond mosaic. Greyscale rather than the ramped RGBA CyclOSM uses, because
+# contours.mss composites hillshade with grain-merge, which wants neutral grey.
+DEM = '/opt/opengeofiction/dem'
+LADDER = {
+    'relief-5000':    DEM + '/relief-5000.vrt',
+    'relief-500':     DEM + '/relief-500.vrt',
+    'hillshade-5000': DEM + '/hillshade-5000.vrt',
+    'hillshade-500':  DEM + '/hillshade-1000.vrt',
+    'hillshade-90':   DEM + '/shade.vrt',
+}
+n_dem = 0
+for layer, path in LADDER.items():
+    blk = re.search(r'((?:^#  - id: %s\n)(?:^#.*\n)*)' % re.escape(layer), s, flags=re.M)
+    if not blk:
+        continue
+    live = re.sub(r'^#', '', blk.group(1), flags=re.M)
+    live = re.sub(r'file: "[^"]*"', 'file: "%s"' % path, live)
+    if layer == 'hillshade-90':
+        live = re.sub(r'(minzoom: 8\n\s*)maxzoom: 17', r'\g<1>maxzoom: 19', live)
+    s = s[:blk.start(1)] + live + s[blk.end(1):]
+    n_dem += 1
 
 open(p, 'w').write(s)
 print('  dbname gis -> ttopo: %d anchor(s)' % n_db)
 print('  connection lines removed: %d' % n_conn)
 print('  ocean-lz opened to z0: %d' % n_ocean)
 print('  landcover lowered to z7: %d' % n_land)
-print('  hillshade-90 enabled on shade.vrt: %d' % n_hs)
+print('  relief and hillshade layers enabled: %d' % n_dem)

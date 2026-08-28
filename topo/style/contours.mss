@@ -66,9 +66,20 @@
 #hillshade-5000,
 #hillshade-500,
 #hillshade-90 {
-    raster-comp-op: grain-merge;
+    raster-comp-op: multiply;
     raster-scaling: lanczos;
     raster-opacity: 0.7;
+    /* Eased off as the ground fills with detail it would otherwise swamp -
+     * the contours are drawn multiply too, and a heavy shade buries them.
+     * Same taper CyclOSM gives this raster. */
+    [zoom >= 12] { raster-opacity: 0.5; }
+    [zoom >= 14] { raster-opacity: 0.4; }
+    [zoom >= 16] { raster-opacity: 0.3; }
+}
+
+#hillshade-5000,
+#hillshade-500 {
+    raster-opacity: 0.45;
 }
 
 #relief-5000,

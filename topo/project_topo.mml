@@ -143,47 +143,6 @@ Layer:
       cache-features: true
       minzoom: 10
 
-#  - id: relief-5000
-#    <<: *extents
-#    Datasource:
-#      type: "gdal"
-#      file: "./otm-data/new-relief-5000.tif"
-#      format: "tiff"
-#    properties:
-#      minzoom: 1
-#      maxzoom: 4
-
-#  - id: relief-500
-#    <<: *extents
-#    Datasource:
-#      type: "gdal"
-#      file: "./otm-data/new-relief-500.tif"
-#      format: "tiff"
-#    properties:
-#      minzoom: 5
-#      maxzoom: 8
-
-#  - id: hillshade-5000
-#    <<: *extents
-#    Datasource:
-#      type: "gdal"
-#      file: "./otm-data/hillshade-5000.tif"
-#      format: "tiff"
-#    properties:
-#      minzoom: 1
-#      maxzoom: 4
-
-#  - id: hillshade-500
-#    geometry: polygon
-#    <<: *extents
-#    Datasource:
-#      type: "gdal"
-#      file: "./otm-data/hillshade-500.tif"
-#      format: "tiff"
-#    properties:
-#      minzoom: 5
-#      maxzoom: 7
-
   - id: landcover-line
     geometry: linestring
     <<: *extents
@@ -197,11 +156,52 @@ Layer:
         ) AS landcover_line
     properties:
       minzoom: 14
+  - id: relief-5000
+    <<: *extents
+    Datasource:
+      type: "gdal"
+      file: "/opt/opengeofiction/dem/relief-5000.vrt"
+      format: "tiff"
+    properties:
+      minzoom: 1
+      maxzoom: 4
+
+  - id: relief-500
+    <<: *extents
+    Datasource:
+      type: "gdal"
+      file: "/opt/opengeofiction/dem/relief-500.vrt"
+      format: "tiff"
+    properties:
+      minzoom: 5
+      maxzoom: 8
+
+  - id: hillshade-5000
+    <<: *extents
+    Datasource:
+      type: "gdal"
+      file: "/opt/opengeofiction/dem/hillshade-5000.vrt"
+      format: "tiff"
+    properties:
+      minzoom: 1
+      maxzoom: 4
+
+  - id: hillshade-500
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      type: "gdal"
+      file: "/opt/opengeofiction/dem/hillshade-1000.vrt"
+      format: "tiff"
+    properties:
+      minzoom: 5
+      maxzoom: 7
+
   - id: hillshade-90
     <<: *extents
     Datasource:
       type: "gdal"
-      file: "/opt/opengeofiction/dem/hillshade.vrt"
+      file: "/opt/opengeofiction/dem/shade.vrt"
       format: "tiff"
     properties:
       minzoom: 8

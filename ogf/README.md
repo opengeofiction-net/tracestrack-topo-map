@@ -86,3 +86,55 @@ level is the coastline, and drawing it as an index contour rings every island.
 
 See *Admin:Elevation process* in the OGF admin wiki for where the DEM, the
 contours and the shapefiles come from.
+
+## The relief ladder
+
+The snapshot carries OpenTopoMap's raster ladder — a different raster per zoom
+band — commented out, and `contours.mss` styles every one of them:
+
+| layer | zooms | OGF raster |
+| --- | --- | --- |
+| `relief-5000` | 1–4 | `relief-5000.tif` |
+| `relief-500` | 5–8 | `relief-500.tif` |
+| `hillshade-5000` | 1–4 | `hillshade-5000.tif` |
+| `hillshade-500` | 5–7 | `hillshade-1000.tif` |
+| `hillshade-90` | 8–19 | the 1 arcsecond `shade.vrt` |
+
+`ogf/fetch-relief.sh` fetches those per zone and mosaics each band.
+`fetchDemData.sh` does not - it pulls only the single 1 arcsecond mosaic CyclOSM
+wants - so this runs alongside it.
+
+Two things about compositing them, both learned the hard way:
+
+**The hillshades need the ramp.** `gdaldem` gives flat ground a valid mid value,
+around 180 rather than a neutral 128, so `grain-merge` lightens the whole of a
+zone's rectangle, sea included, and every DEM footprint shows as a box on the
+map. The fetch script puts them through the style's own `shade.ramp` first,
+which makes flat ground transparent and shades only slopes, and `contours.mss`
+is edited to composite with `multiply`. That is what CyclOSM does with the same
+data. The relief rasters are already RGBA and are left alone.
+
+**Edit the rule, do not override it.** carto keeps the *first* rule it sees for
+a selector, so a later block saying `multiply` is read, parsed and silently
+ignored - whether it sits in another stylesheet loaded afterwards or at the foot
+of the same file. `ogf/fix_contours_mss.py` therefore edits the declaration in
+place. A second block is only effective when its selector *set* differs from the
+first, which is how the coarse-band opacity below works.
+
+Opacities: the coarse bands drop to 0.45 where they overlap the relief at z5-8,
+since multiplying both at 0.7 leaves the ground darker than either intends; and
+the fine band tapers from z12 down to 0.3 by z16, because contours are drawn
+with `multiply` too and a heavy shade buries them.
+
+## Still missing
+
+Labels and administrative boundaries. They live in `labels_topo`, which is not
+published - `tracestrack/OpenLayers-Cartographic-Label-Style` is a client-side
+OpenLayers overlay for the Carto product line, not that project. None of the 24
+label and boundary layers osm-carto offers has any styling in these stylesheets,
+so restoring them means importing osm-carto's label cartography as well: labels
+would appear, but they would be osm-carto's labels on a Tracestrack base rather
+than a recovery of what is missing.
+
+`necountries` gives country outlines at z1-3, which is the one piece of the
+boundary story the base project can carry.
