@@ -110,7 +110,7 @@ Then, in order:
 | `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | historic scripts |
 | `scripts/get-external-data.py` with `ogf/external-data.yml` | water polygons, icesheet, Natural Earth boundaries |
 | `ogf/fetch-relief.sh` | the coarse relief and hillshade mosaics |
-| `psql -d contours -f ogf/contours-view.sql` | maps OGF contours onto what the style selects |
+| `cp ogf/shade.ramp ogf/zfactor dem/` | the hillshade ramp, and which strength this style wants |
 | `psql -d ttopo -f ogf/icesheet-column.sql` | adds `ice_edge` to the empty icesheet table |
 
 **Fonts are not optional.** The style asks for the Noto "UI" variants, which
@@ -136,6 +136,25 @@ map. `ogf/fetch-relief.sh` puts them through `shade.ramp` first, which makes
 flat ground transparent and shades only slopes, and they composite with
 `multiply` — what CyclOSM does with the same rasters. The relief rasters are
 already RGBA and are left alone.
+
+`ogf/shade.ramp` is why the 178–182 gap in it is fully transparent: that is
+where flat ground lands. Below it is black at falling alpha for shadow, above it
+white at rising alpha for highlight. Both `fetch-relief.sh` and OGF-terrain-tools'
+`fetchDemData.sh` read it from `dem/shade.ramp`, so it has to be copied into
+place — neither creates it.
+
+**`ogf/zfactor` picks the hillshade strength.** The published DEM carries several,
+and `fetchDemData.sh` fetches `hillshade-<zfactor>.tif`. cyclogf reads the soft
+`z2`; this style wants `z5`, which is why the file says so. It sits beside the
+ramp rather than in the systemd unit so that a hand-run and the timer agree —
+disagreeing just re-fetches every zone at the other strength, which looks like a
+slow morning rather than a mistake.
+
+**The `contour` view is not this repo's to create.** The style selects `geom` and
+`ele` from a relation named `contour`, where OGF's contours arrive as `way` and
+`ele` on `planet_osm_line`. `fetchDemData.sh` creates both that view and cyclogf's
+`contours` after every load, because `osm2pgsql --create` replaces the table under
+them. Nothing here needs to run any SQL for it.
 
 **Rendering through mapnik directly is not rendering through renderd.** renderd
 registers fonts from `font_dir`; a script calling mapnik does not, so every
