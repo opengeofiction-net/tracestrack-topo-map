@@ -248,7 +248,7 @@ Layer:
           FROM icesheet_polygons
         ) AS icesheet_polygons
     properties:
-      minzoom: 9
+      minzoom: 0
 
   - id: water-lines-casing
     geometry: linestring
@@ -1511,7 +1511,7 @@ Layer:
         ) AS placenames_small
     properties:
       cache-features: true
-      minzoom: 12
+      minzoom: 10
   - id: admin-text
     geometry: linestring
     <<: *extents

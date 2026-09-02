@@ -133,10 +133,17 @@ exactly that ladder per zone:
 | `hillshade-500` | 5–7 | `hillshade-1000.tif` |
 | `hillshade-90` | 8–19 | the 1 arcsecond `shade.vrt` |
 
-**Three zoom-range corrections.** `ocean-lz` was `minzoom: 9` *and*
+**Five zoom-range corrections.** `ocean-lz` was `minzoom: 9` *and*
 `maxzoom: 9`, drawing on exactly one zoom level with nothing drawing the sea
 below z9. `landcover` starts at z10 rather than z12, matching its own selector,
-with the restored low-zoom layer below that.
+with the restored low-zoom layer below that. `icesheet-poly` was `minzoom: 9`,
+so a world view had nothing but sea colour above the poles; the shapefile is
+generalised and `shapefiles.mss` styles it from z0, so it is opened down there
+for the same reason as `ocean-lz`. `placenames-small` was `minzoom: 12`, but
+`placenames.mss` has rules for village, suburb, quarter and neighborhood from
+z11 — so 12 was cutting off a zoom the stylesheet already draws, and on a
+topographic sheet z10 and z11 are exactly where the map went quiet. Lowered to
+10, where the rules stop firing.
 
 **`fonts.mss` gains the historic scripts**, as the OGF CyclOSM patch adds them:
 upstream leaves them out because OSM does not use them in name tags, and OGF's
@@ -184,6 +191,16 @@ what the OGF CyclOSM servers use. Then symlink the result into renderd's
 them otherwise.
 
 ## Things that cost time to find
+
+**A lazy `.*?` in `patch_mml.py` does not stop at the end of a layer.** Each
+zoom correction walks from `- id: <layer>` to a `properties:` block under
+`re.S`. Run the script a second time and the first pattern, finding its own
+layer already patched, walks straight on to the next layer whose properties
+happen to end the same way and patches *that* — reporting a hit either way, so
+it looks like it worked. It was latent until the label layers put a
+`cache-features: true` / `minzoom: 12` block after `placenames-small`, at which
+point a re-run quietly moved `stations` to z10. Every pattern is now confined to
+its own block with `(?:(?!\n  - id: ).)*?`.
 
 **carto keeps the *first* rule it sees for a selector.** A later block saying
 something different is read, parsed, compiled without complaint and silently

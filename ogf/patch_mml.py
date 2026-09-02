@@ -24,11 +24,20 @@ s = re.sub(r'^[ \t]*host: "localhost"\n', '', s, flags=re.M)
 s = re.sub(r'^[ \t]*port: "?5432"?\n', '', s, flags=re.M)
 n_conn = before - len(s.splitlines())
 
+# Each zoom correction below is confined to its own layer by
+# "(?:(?!\n  - id: ).)*?" rather than a plain ".*?". With DOTALL a lazy .*? does
+# not stop at the end of the block: run the script twice and the first pattern,
+# finding its own layer already at 0, walks on to the next layer whose
+# properties happen to end "minzoom: 9" and silently patches that instead. It
+# reported a hit either way. Adding the label layers put a "cache-features: true
+# / minzoom: 12" block after placenames-small and turned that from latent into a
+# stations layer quietly moved to z10.
+
 # ---- the sea below z9 -----------------------------------------------------
 # ocean-lz is minzoom 9 AND maxzoom 9, so it draws on exactly one zoom level and
 # below z9 nothing draws the sea at all - land colour to the horizon. Opened
 # down to z0. It reads simplified_water_polygons, which is what that is for.
-s, n_ocean = re.subn(r'(- id: ocean-lz.*?properties:\n\s*minzoom: )9',
+s, n_ocean = re.subn(r'(- id: ocean-lz(?:(?!\n  - id: ).)*?properties:\n\s*minzoom: )9',
                      r'\g<1>0', s, flags=re.S)
 
 # ---- landcover at z10 and z11 ---------------------------------------------
@@ -37,8 +46,26 @@ s, n_ocean = re.subn(r'(- id: ocean-lz.*?properties:\n\s*minzoom: )9',
 # the snapshot has - otherwise z10 and z11 fall between the two and draw nothing.
 # Not lower than 10: no rule in the stylesheet fires for this layer below that,
 # so the query would return 2.9 million rows for nothing.
-s, n_land = re.subn(r'(- id: landcover\n.*?properties:\n\s*cache-features: true\n\s*minzoom: )12',
+s, n_land = re.subn(r'(- id: landcover\n(?:(?!\n  - id: ).)*?properties:\n\s*cache-features: true\n\s*minzoom: )12',
                     r'\g<1>10', s, flags=re.S)
+
+# ---- the icesheet at low zoom ---------------------------------------------
+# icesheet-poly is minzoom 9, so above the poles there is nothing but sea colour
+# on a world view. The layer reads the icesheet shapefile, which is generalised
+# and cheap at any zoom, and shapefiles.mss styles it from z0. Opened down to 0
+# for the same reason as ocean-lz.
+s, n_ice = re.subn(r'(- id: icesheet-poly(?:(?!\n  - id: ).)*?properties:\n\s*minzoom: )9',
+                   r'\g<1>0', s, flags=re.S)
+
+# ---- villages and suburbs at z10 and z11 ----------------------------------
+# placenames-small is minzoom 12 in the snapshot. On a topographic map z10 and
+# z11 are where you are reading the shape of a region, and with nothing smaller
+# than a town labelled the sheet goes quiet exactly where the terrain gets
+# interesting. placenames.mss has rules for village, suburb, quarter and
+# neighborhood from z11, so 12 was cutting off a zoom the stylesheet already
+# draws. Lowered to 10, which is where the rules stop firing.
+s, n_small = re.subn(r'(- id: placenames-small(?:(?!\n  - id: ).)*?properties:\n\s*cache-features: true\n\s*minzoom: )12',
+                     r'\g<1>10', s, flags=re.S)
 
 # ---- the label stylesheets ------------------------------------------------
 # placenames.mss in the snapshot is openstreetmap-carto's file with everything
@@ -88,4 +115,6 @@ print('  dbname gis -> ttopo: %d anchor(s)' % n_db)
 print('  connection lines removed: %d' % n_conn)
 print('  ocean-lz opened to z0: %d' % n_ocean)
 print('  landcover lowered to z7: %d' % n_land)
+print('  icesheet-poly opened to z0: %d' % n_ice)
+print('  placenames-small lowered to z10: %d' % n_small)
 print('  relief and hillshade layers enabled: %d' % n_dem)
