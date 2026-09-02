@@ -16,3 +16,15 @@
     }
   }
 }
+
+#ferry-routes-text {
+  [zoom >= 13] {
+    text-name: "[name]";
+    text-face-name: @book-fonts;
+    text-placement: line;
+    text-fill: @ferry-route-text;
+    text-spacing: 1000;
+    text-size: 10;
+    text-dy: -8;
+  }
+}

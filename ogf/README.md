@@ -15,6 +15,13 @@ perfectly well. What it is missing is **layers**.
   "topo_base + labels_topo" and `taginfo/taglist.txt` declares the tags for both
   together — including `admin_level` and `boundary=administrative`, which appear
   in no layer here. **`labels_topo` is not published.**
+  * The split runs through the stylesheets too, and the cut is clean enough to
+    read. `stations.mss` is osm-carto's variable header with all 120 lines of
+    rules removed. `ferry-routes.mss` is osm-carto's file minus its one
+    `#ferry-routes-text` block. `water-features.mss` keeps its label rules but
+    sets `text-name: ""`, so dams, weirs, piers and breakwaters are named by
+    rules that draw nothing. **Every label rule in the map went to
+    `labels_topo`**, and eighteen more layers with it.
 * Even `topo_base` is short of its own stylesheets. **Nineteen layer ids are
   styled in `topo/style/*.mss` with no `Layer` to match**, so the stylesheets
   describe a map the project file cannot draw. `landcover.mss` opens
@@ -59,6 +66,35 @@ everything after it.
 a graft and worth saying so — the label cartography is osm-carto's on a
 Tracestrack base, not a recovery of what Tracestrack draws. It is closer than it
 sounds, their file having been osm-carto's until the rules were cut out.
+
+**Road, water, POI and address labels restored**, by `ogf/restore_labels.py`,
+from the same release. Eighteen layers — `stations`, `amenity-points`,
+`bridge-text`, the seven `roads-text-*`, `railways-text-name`, `paths-text-name`,
+`water-lines-text`, `ferry-routes-text`, `building-text`, `addresses`,
+`interpolation`, `text-poly-low-zoom` and the two low-priority passes — appended
+in osm-carto's own relative order. Order is priority: mapnik gives contested
+space to whichever label is drawn first, so placenames and admin, already at the
+end of the project, keep winning against a street name.
+
+Their rules are appended to this project's own `roads.mss`, `water.mss`,
+`amenity-points.mss`, `stations.mss` and `ferry-routes.mss`, and `addressing.mss`
+is copied in whole. It is a graft on the same terms as placenames — the label
+cartography is osm-carto's — but it lands closer than that sounds, because
+`topo_base` keeps osm-carto's whole variable header in every file, **including
+the sizes Tracestrack scaled for a topographic sheet**. `@standard-font-size` is
+`10*1.4` here against osm-carto's `10`, `@landcover-wrap-width-size` `30*2.5`
+against `30`. The restored rules read those, so they come out at this project's
+typography and not osm-carto's. Of the 131 variables they reference exactly one,
+`@private-opacity`, had to be added.
+
+`#junctions` comes with them. That layer was already in the project with nothing
+styling it, so carto had been reporting it, alongside the three power layers, as
+a layer with no styles associated with it. It is the motorway junction ref.
+
+**`power.mss` is declared.** The three power layers were restored and the
+stylesheet that styles them was never added to the project's list, so carto
+warned and the map drew no power at all. It and `addressing.mss` both go in at
+osm-carto's own positions in that list.
 
 **The relief ladder is enabled.** The snapshot carries OpenTopoMap's raster
 ladder commented out, and `contours.mss` styles every layer in it. OGF publishes
@@ -106,6 +142,8 @@ Then, in order:
 | --- | --- |
 | `ogf/patch_mml.py topo/project_topo.mml` | connection, zoom ranges, relief ladder, stylesheet list |
 | `ogf/restore_layers.py topo/project_topo.mml <osm-carto project.mml>` | the 24 layers |
+| `ogf/restore_labels.py topo/project_topo.mml <osm-carto checkout>` | the 18 label layers, their rules, and the icons they need |
+| `psql -d ttopo -f functions.sql` | `carto_path_type`, which `paths-text-name` selects on |
 | `ogf/fix_contours_mss.py topo/style/contours.mss` | hillshade compositing |
 | `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | historic scripts |
 | `scripts/get-external-data.py` with `ogf/external-data.yml` | water polygons, icesheet, Natural Earth boundaries |
@@ -156,6 +194,22 @@ slow morning rather than a mistake.
 `contours` after every load, because `osm2pgsql --create` replaces the table under
 them. Nothing here needs to run any SQL for it.
 
+**A missing icon is fatal, and this project renamed some.** mapnik does not warn
+about a marker file it cannot open: it fails the whole layer, renderd then fails
+the map, and every tile comes back an error. The symbol set here is osm-carto's
+974 files, but not always under osm-carto's names — some carry the intended pixel
+size, `entrance.10.svg`, `aerodrome.12.svg`, `traffic_light.13.svg`, and some
+were flattened out of their category directory to the top of `symbols/`. Of the
+17 icons the restored rules asked for and could not find, 13 were one of those
+two and four were added to osm-carto after this snapshot. `restore_labels.py`
+repoints the first kind by basename, ignoring the size suffix, and copies in the
+second.
+
+**`carto_path_type` is not in the database.** `paths-text-name` selects on it, so
+without it renderd fails the whole map with `function carto_path_type(text, text)
+does not exist`. It is in osm-carto's `functions.sql`, which this repo did not
+carry and now does — `indexes.sql` was taken at setup and its companion was not.
+
 **Rendering through mapnik directly is not rendering through renderd.** renderd
 registers fonts from `font_dir`; a script calling mapnik does not, so every
 label outside the default set comes out as boxes. That looks like a broken style
@@ -163,15 +217,15 @@ and is not.
 
 ## Still missing
 
-**Road, water and POI labels.** `roads-text-name`, `roads-text-ref`,
-`water-lines-text`, `bridge-text`, `railways-text-name`, `building-text` and the
-amenity labels are all still absent. Unlike placenames and admin, their rules
-live inside osm-carto's `roads.mss`, `water-features.mss` and
-`amenity-points.mss` — files this project already has its own versions of — so
-restoring them means extracting text rules from those, not copying a file.
-
 **Tracestrack's own label design.** What is here is osm-carto's. Recovering
 theirs needs `labels_topo`, which is not published anywhere.
+
+**Layers that are not labels.** `aerialways`, `golf-line`, `trees`, and
+`roller-coaster` with its gap fill, are all in osm-carto v5.9.0 and none is
+here. They need `aerialways.mss`, `golf.mss` and `tourism.mss`, which this
+project does not carry at all — so unlike the labels they are three new files
+rather than rules appended to existing ones, and nothing about them was cut by
+the `labels_topo` split. Left alone deliberately.
 
 **`landcover-1000`, `landcover-200` and `natural`.** The first two are raster
 layers Tracestrack renders generalised landcover into, and `natural` is theirs;

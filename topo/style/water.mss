@@ -195,3 +195,125 @@
     }
   }
 }
+
+
+#water-lines-text {
+  [lock = 'yes'][zoom >= 17] {
+      text-name: "[lock_name]";
+      text-face-name: @oblique-fonts;
+      text-placement: line;
+      text-fill: @water-text;
+      text-spacing: 400;
+      text-size: 10;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+  }
+
+  [lock != 'yes'][int_tunnel != 'yes'] {
+    [waterway = 'river'][zoom >= 13] {
+      text-name: "[name]";
+      text-size: 10;
+      text-face-name: @oblique-fonts;
+      text-fill: @water-text;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+      text-spacing: 400;
+      text-placement: line;
+      text-repeat-distance: @waterway-text-repeat-distance;
+      [zoom >= 14] { text-size: 12; }
+    }
+
+    [waterway = 'canal'][zoom >= 13] {
+      text-name: "[name]";
+      text-size: 10;
+      text-face-name: @oblique-fonts;
+      text-fill: @water-text;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+      text-placement: line;
+      text-repeat-distance: @waterway-text-repeat-distance;
+    }
+
+    [waterway = 'stream'][zoom >= 15] {
+      text-name: "[name]";
+      text-size: 10;
+      text-face-name: @oblique-fonts;
+      text-fill: @water-text;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+      text-spacing: 600;
+      text-placement: line;
+      text-vertical-alignment: middle;
+      text-dy: 8;
+      text-repeat-distance: @waterway-text-repeat-distance;
+    }
+
+    [waterway = 'drain'],
+    [waterway = 'ditch'] {
+      [zoom >= 15] {
+        text-name: "[name]";
+        text-size: 10;
+        text-face-name: @oblique-fonts;
+        text-fill: @water-text;
+        text-halo-radius: @standard-halo-radius;
+        text-halo-fill: @standard-halo-fill;
+        text-spacing: 600;
+        text-placement: line;
+        text-vertical-alignment: middle;
+        text-dy: 8;
+        text-repeat-distance: @waterway-text-repeat-distance;
+      }
+    }
+  }
+  [natural = 'bay'][zoom >= 14],
+  [natural = 'strait'][zoom >= 14] {
+    text-name: "[name]";
+    text-size: 10;
+    text-face-name: @oblique-fonts;
+    text-fill: @water-text;
+    text-halo-radius: @standard-halo-radius;
+    text-halo-fill: @standard-halo-fill;
+    text-max-char-angle-delta: 15;
+    text-spacing: 400;
+    text-placement: line;
+    [zoom >= 15] {
+      text-size: 12;
+    }
+  }
+}
+
+#text-poly-low-zoom[zoom < 10],
+#text-point[zoom >= 10] {
+  [feature = 'natural_water'],
+  [feature = 'landuse_reservoir'],
+  [feature = 'landuse_basin'],
+  [feature = 'waterway_dock'] {
+    [zoom >= 5][way_pixels > 3000][way_pixels <= 768000],
+    [zoom >= 17][way_pixels <= 768000] {
+      text-name: "[name]";
+      text-size: 10;
+      text-wrap-width: 25; // 2.5 em
+      text-line-spacing: -1.5; // -0.15 em
+      [way_pixels > 12000] {
+        text-size: 12;
+        text-wrap-width: 37; // 3.1 em
+        text-line-spacing: -1.6; // -0.13 em
+      }
+      [way_pixels > 48000] {
+        text-size: 15;
+        text-wrap-width: 59; // 3.9 em
+        text-line-spacing: -1.5; // -0.10 em
+      }
+      [way_pixels > 192000] {
+        text-size: 19;
+        text-wrap-width: 95; // 5.0 em
+        text-line-spacing: -0.95; // -0.05 em
+      }
+      text-fill: @water-text;
+      text-face-name: @oblique-fonts;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+      text-placement: interior;
+    }
+  }
+}
