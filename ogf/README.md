@@ -1,9 +1,9 @@
 # OpenGeofiction fork
 
 Tracestrack Topo, rendering OpenGeofiction's fictional planet at
-[tiles07.opengeofiction.net](https://tiles07.opengeofiction.net). Upstream is
-`tracestrack/tracestrack-topo-map`, kept as the `upstream` remote; everything
-here is on the `ogf` branch, with `main` left as upstream's snapshot.
+[opengeofiction.net](https://opengeofiction.net/#map=8/45.242/28.734&layers=V).
+Upstream is `tracestrack/tracestrack-topo-map`, kept as the `upstream` remote;
+everything here is on the `ogf` branch, with `main` left as upstream's snapshot.
 
 ## What upstream publishes, and what it does not
 
