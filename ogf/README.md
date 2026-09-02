@@ -87,6 +87,31 @@ against `30`. The restored rules read those, so they come out at this project's
 typography and not osm-carto's. Of the 131 variables they reference exactly one,
 `@private-opacity`, had to be added.
 
+**`text-line` and `text-point` move.** `restore_layers.py` had placed them at 49
+and 50, four before `buildings`, because it slots a restored layer after the
+nearest layer the two projects share and the nearest to those is `amenity-line`.
+That was harmless while they carried only `topo_base`'s dam, weir and pier
+labels, which were silenced anyway. It stops being harmless here: osm-carto's
+`text-point` is **where an area POI gets its name**, so grafting those rules onto
+a layer drawn before `buildings` means every restaurant, shop and school mapped
+as a building is labelled and then painted over by its own building at 0.7
+opacity — the name half legible, in a way that reads as a font problem rather
+than an ordering one. They now sit where osm-carto puts them, after the road text
+and before `building-text`.
+
+The trade that comes with it is osm-carto's: road names are drawn first and so
+win the space, and an area POI whose label a road label crosses now yields
+instead of overprinting. That is the upstream priority and the reason to accept
+it, but it is a real change in what gets labelled.
+
+**`junctions` starts at z16, not osm-carto's z11.** The layer is right for a road
+map at z11; on a topographic sheet the motorway junction refs arrive long before
+anything they can be read against, and from z12 to z15 they are the loudest thing
+on the map — a scatter of bare numbers over terrain. From z16 they land with the
+roads they belong to, and z12 to z15 get the motorway names instead. The rules
+inside `roads.mss` are left as osm-carto wrote them; the layer simply does not
+run below z16.
+
 `#junctions` comes with them. That layer was already in the project with nothing
 styling it, so carto had been reporting it, alongside the three power layers, as
 a layer with no styles associated with it. It is the motorway junction ref.

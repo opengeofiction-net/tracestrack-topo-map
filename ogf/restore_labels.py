@@ -84,6 +84,26 @@ UNBLANK = ('water-features.mss', 'text-name: "";', 'text-name: "[name]";')
 # Used by the grafted rules and defined in no file here.
 VARS = [('amenity-points.mss', '@private-opacity: 0.33;')]
 
+# Layers that have to move. text-line and text-point were slotted in early by
+# restore_layers.py, which places a restored layer after the nearest layer the
+# two projects share - and the nearest one to them is amenity-line, at 48, four
+# before buildings. That was harmless while they carried only topo_base's dam,
+# weir and pier labels, which were silenced anyway. It stops being harmless
+# here: osm-carto's text-point is where **area** POIs get their name, so
+# grafting those rules onto a layer drawn before buildings means every
+# restaurant, shop and school mapped as a building is labelled and then painted
+# over by the building at its 0.7 opacity. osm-carto draws all three after the
+# road text and before building-text, and so should this.
+MOVE = [('text-line', 'building-text'), ('text-point', 'building-text')]
+
+# Layers whose entry zoom this map wants somewhere other than osm-carto's.
+# junctions is osm-carto's from z11, which suits a road map: on a topographic
+# sheet the motorway junction refs arrive long before anything they could be
+# read against, and at z12 to z15 they are the loudest thing on the map. From
+# z16 they land with the roads they belong to. The rules below z16 inside
+# roads.mss are left as osm-carto wrote them - the layer simply does not run.
+MINZOOM = [('junctions', 16)]
+
 
 def rules(text):
     """Yield (selector, source text) for each top-level rule in a stylesheet.
@@ -235,6 +255,32 @@ def main():
     oc = {l['id']: l for l in
           yaml.safe_load(open(os.path.join(oc_root, 'project.mml')))['Layer']}
     text = open(mml_path).read()
+
+    def layer_block(text, name):
+        m = re.search(r'^  - id: %s$' % re.escape(name), text, flags=re.M)
+        if not m:
+            return None, None, None
+        nxt = re.search(r'^  - id: ', text[m.end():], flags=re.M)
+        end = m.end() + (nxt.start() if nxt else len(text) - m.end())
+        return m.start(), end, text[m.start():end]
+
+    for name, before in MOVE:
+        start, end, blk = layer_block(text, name)
+        at, _, _ = layer_block(text, before)
+        anchor, _, _ = layer_block(text, 'buildings')
+        if blk is None or at is None or anchor is None or start > anchor:
+            continue        # already out of the early slot
+        text = text[:start] + text[end:]
+        at, _, _ = layer_block(text, before)
+        text = text[:at] + blk + text[at:]
+        print('  %-22s moved to just before %s' % (name, before))
+
+    for name, z in MINZOOM:
+        m = re.search(r'^  - id: %s$.*?^      minzoom: (\d+)$' % re.escape(name),
+                      text, flags=re.M | re.S)
+        if m and int(m.group(1)) != z:
+            text = text[:m.start(1)] + str(z) + text[m.end(1):]
+            print('  %-22s minzoom %s -> %d' % (name, m.group(1), z))
 
     for sheet, after in SHEETS:
         if '  - %s\n' % sheet not in text:
