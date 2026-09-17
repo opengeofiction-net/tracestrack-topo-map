@@ -219,7 +219,7 @@ already RGBA and are left alone.
 
 `ogf/shade.ramp` is why the 178–182 gap in it is fully transparent: that is
 where flat ground lands. Below it is black at falling alpha for shadow, above it
-white at rising alpha for highlight. Both `fetch-relief.sh` and OGF-terrain-tools'
+white at rising alpha for highlight. Both `fetch-relief.sh` and ogf-server-scripts'
 `fetchDemData.sh` read it from `dem/shade.ramp`, so it has to be copied into
 place — neither creates it.
 
