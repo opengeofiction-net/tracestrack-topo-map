@@ -149,6 +149,11 @@ topographic sheet z10 and z11 are exactly where the map went quiet. Lowered to
 upstream leaves them out because OSM does not use them in name tags, and OGF's
 conlangs are written in them.
 
+**Low-zoom landcover stops at a tenth of a pixel**, not osm-carto's hundredth,
+by `ogf/tune_mml.py`. On a z5 metatile the layer drew 210,000 polygons, two
+thirds of them under 0.1 px, and was most of the render. Halves z5–7 with no
+visible difference; the numbers are in the script.
+
 **Connection details**: database name, and the `YOURUSERNAME`/`YOURPASSWORD`
 placeholders. `host` and `port` go too — left in, `host: "localhost"` forces a
 TCP connection and renderd fails every layer with
@@ -176,6 +181,8 @@ Then, in order:
 | `ogf/restore_layers.py topo/project_topo.mml <osm-carto project.mml>` | the 24 layers |
 | `ogf/restore_labels.py topo/project_topo.mml <osm-carto checkout>` | the 18 label layers, their rules, and the icons they need |
 | `psql -d ttopo -f functions.sql` | `carto_path_type`, which `paths-text-name` selects on |
+| `psql -d ttopo -f indexes.sql` | osm-carto v5.9.0's partial and `ST_PointOnSurface` indexes — see below |
+| `ogf/tune_mml.py topo/project_topo.mml` | render-time changes, after the restores |
 | `ogf/fix_contours_mss.py topo/style/contours.mss` | hillshade compositing |
 | `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | historic scripts |
 | `scripts/get-external-data.py` with `ogf/external-data.yml` | water polygons, icesheet, Natural Earth boundaries |
@@ -247,10 +254,23 @@ two and four were added to osm-carto after this snapshot. `restore_labels.py`
 repoints the first kind by basename, ignoring the size suffix, and copies in the
 second.
 
+**Without `indexes.sql` the label layers scan every polygon.** Six of the
+restored layers — `state-names`, `county-names`, `bridge-text`,
+`roads-area-text-name`, `text-poly-low-zoom`, `building-text` — select on
+`ST_PointOnSurface(way) && !bbox!`, which the plain GiST index on `way` cannot
+serve. osm-carto builds an expression index for exactly that,
+`planet_osm_polygon_name`; without it each of those layers reads all ten million
+polygons on every metatile, three seconds apiece. tiles04 ran that way from September to
+November: a z16 metatile took 18.7 s and takes 0.76 s with the indexes, z13 4.6 s
+and now 0.81 s. Nothing fails or warns — it is only slow — so check `\di` on a
+new database rather than trusting the setup notes. The file is v5.9.0's,
+committed here beside `functions.sql`, because it has to match the import's
+columns rather than osm-carto's latest.
+
 **`carto_path_type` is not in the database.** `paths-text-name` selects on it, so
 without it renderd fails the whole map with `function carto_path_type(text, text)
 does not exist`. It is in osm-carto's `functions.sql`, which this repo did not
-carry and now does — `indexes.sql` was taken at setup and its companion was not.
+carry and now does.
 
 **Rendering through mapnik directly is not rendering through renderd.** renderd
 registers fonts from `font_dir`; a script calling mapnik does not, so every

@@ -3,7 +3,6 @@ style.xml
 oc.mml
 openstreetmap-carto.style
 openstreetmap-carto.lua
-indexes.sql
 dem/
 data/
 topo/project_topo.mml.orig
