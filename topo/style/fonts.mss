@@ -1,8 +1,9 @@
 /*
 A regular style.
 */
-@book-fonts:    "Source Sans Pro Regular",
-                "Source Han Sans SC Regular",
+@book-fonts:    "Source Sans 3 Regular",
+                "Noto Sans Regular",
+                "Noto Sans CJK SC Regular",
                 "Noto Sans Mono CJK SC Regular",
                 "Noto Sans Adlam Regular",
                 "Noto Sans Adlam Unjoined Regular",
@@ -149,7 +150,7 @@ A bold style is available for almost all scripts. Bold text is heavier than
 regular text and can be used for emphasis. Fallback is a regular style.
 */
 @semi-bold-fonts:
-                "Source Sans Pro SemiBold",
+                "Source Sans 3 Semibold",
                 @bold-fonts;
 
 /*
@@ -157,9 +158,9 @@ A bold style is available for almost all scripts. Bold text is heavier than
 regular text and can be used for emphasis. Fallback is a regular style.
 */
 @bold-fonts:    
-                "Source Sans Pro Bold",
-                "Source Han Sans SC Bold", 
+                "Source Sans 3 Bold",
                 "Noto Sans Bold",
+                "Noto Sans CJK SC Bold",
                 "Noto Sans Armenian Bold",
                 "Noto Sans Bengali UI Bold",
                 "Noto Sans Cham Bold",
@@ -194,6 +195,6 @@ Italics are only available for the base font, not the other scripts.
 For a considerable number of labels this style will make no difference to the regular style.
 */
 
-@oblique-fonts: "Source Sans Pro Light", "Source Han Serif SC Light", "Noto Serif CJK SC Light", @book-fonts;
+@oblique-fonts: "Source Sans 3 Light", "Source Han Serif SC Light", "Noto Serif CJK SC Light", @book-fonts;
 
-@italics-fonts: "Source Sans Pro Italic", @oblique-fonts;
+@italics-fonts: "Source Sans 3 Italic", "Noto Sans Italic", @oblique-fonts;

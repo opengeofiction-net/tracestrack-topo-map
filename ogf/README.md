@@ -149,6 +149,18 @@ topographic sheet z10 and z11 are exactly where the map went quiet. Lowered to
 upstream leaves them out because OSM does not use them in name tags, and OGF's
 conlangs are written in them.
 
+**`fonts.mss` names faces Debian has.** Upstream asks first for Source Sans Pro
+and Source Han Sans SC, Adobe's builds, and Debian packages neither under those
+names. With both missing mapnik fell to the third face, Noto Sans Mono CJK SC, so
+every regular and italic label was monospaced, and a Latin letter that font
+lacks — `ș`, `ʃ` — was a box, nothing later in the list carrying Latin. Source
+Sans Pro becomes **Source Sans 3**, its successor, from
+`fonts-adobe-sourcesans3`; Source Han Sans SC becomes **Noto Sans CJK SC**, the
+same font under Google's name; and **Noto Sans** goes straight after Source Sans
+3, so a letter it lacks falls to a full Latin face, not to CJK. Without the
+package the labels are Noto Sans throughout, which is right but not
+Tracestrack's typeface.
+
 **Low-zoom landcover stops at a tenth of a pixel**, not osm-carto's hundredth,
 by `ogf/tune_mml.py`. On a z5 metatile the layer drew 210,000 polygons, two
 thirds of them under 0.1 px, and was most of the render. Halves z5–7 with no
@@ -184,7 +196,7 @@ Then, in order:
 | `psql -d ttopo -f indexes.sql` | osm-carto v5.9.0's partial and `ST_PointOnSurface` indexes — see below |
 | `ogf/tune_mml.py topo/project_topo.mml` | render-time changes, after the restores |
 | `ogf/fix_contours_mss.py topo/style/contours.mss` | hillshade compositing |
-| `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | historic scripts |
+| `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | faces Debian has, and the historic scripts |
 | `scripts/get-external-data.py` with `ogf/external-data.yml` | water polygons, icesheet, Natural Earth boundaries |
 | `ogf/fetch-relief.sh` | the coarse relief and hillshade mosaics |
 | `cp ogf/shade.ramp ogf/zfactor dem/` | the hillshade ramp, and which strength this style wants |
