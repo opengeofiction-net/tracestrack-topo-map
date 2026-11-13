@@ -153,13 +153,12 @@ conlangs are written in them.
 and Source Han Sans SC, Adobe's builds, and Debian packages neither under those
 names. With both missing mapnik fell to the third face, Noto Sans Mono CJK SC, so
 every regular and italic label was monospaced, and a Latin letter that font
-lacks — `ș`, `ʃ` — was a box, nothing later in the list carrying Latin. Source
-Sans Pro becomes **Source Sans 3**, its successor, from
-`fonts-adobe-sourcesans3`; Source Han Sans SC becomes **Noto Sans CJK SC**, the
-same font under Google's name; and **Noto Sans** goes straight after Source Sans
-3, so a letter it lacks falls to a full Latin face, not to CJK. Without the
-package the labels are Noto Sans throughout, which is right but not
-Tracestrack's typeface.
+lacks — `ș`, `ʃ` — was a box, nothing later in the list carrying Latin. **Noto
+Sans now leads each list**, in the matching weight, and Source Han Sans SC
+becomes **Noto Sans CJK SC**, the same font under Google's name. Noto Sans
+because the label rules are osm-carto's, sized for it: Source Sans 3, Source
+Sans Pro's successor, was tried first and read about a tenth smaller at the same
+size. It stays second in each list, from `fonts-adobe-sourcesans3`.
 
 **Low-zoom landcover stops at a tenth of a pixel**, not osm-carto's hundredth,
 by `ogf/tune_mml.py`. On a z5 metatile the layer drew 210,000 polygons, two

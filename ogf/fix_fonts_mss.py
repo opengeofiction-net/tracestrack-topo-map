@@ -12,13 +12,14 @@ regular and italic label came out monospaced, and any Latin letter that font
 lacks - s with comma below, esh - came out as a box, because nothing later in
 the list carries Latin. So:
 
-  * Source Sans Pro becomes Source Sans 3, its successor under a new name, from
+  * Noto Sans leads each list, in the matching weight. The label rules here are
+    osm-carto's, and osm-carto sizes them for Noto Sans: Source Sans 3, Source
+    Sans Pro's successor, was tried first and read about a tenth smaller at the
+    same size, its x-height being lower. It stays second, from
     fonts-adobe-sourcesans3.
   * Source Han Sans SC becomes Noto Sans CJK SC, the same font under Google's
     name, from fonts-noto-cjk.
-  * Noto Sans goes straight after Source Sans 3, so a letter Source Sans 3 lacks
-    falls to a full Latin, Greek and Cyrillic face, not to the CJK fonts. In the
-    bold list that means moving upstream's own Noto Sans Bold up one.
+  * Both come before the CJK fonts, so a Latin letter never falls to them.
 
 The historic scripts. Upstream leaves them out because OSM does not use them in
 name tags. OGF does: its conlangs are written in them, and without these faces
@@ -36,15 +37,15 @@ s = open(p).read()
 I = '\n                '
 RENAME = [
     ('"Source Sans Pro Regular",' + I + '"Source Han Sans SC Regular",',
-     '"Source Sans 3 Regular",' + I + '"Noto Sans Regular",' + I + '"Noto Sans CJK SC Regular",'),
+     '"Noto Sans Regular",' + I + '"Source Sans 3 Regular",' + I + '"Noto Sans CJK SC Regular",'),
     ('"Source Sans Pro SemiBold",',
-     '"Source Sans 3 Semibold",'),
+     '"Noto Sans SemiBold", "Source Sans 3 Semibold",'),
     ('"Source Sans Pro Bold",' + I + '"Source Han Sans SC Bold", ' + I + '"Noto Sans Bold",',
-     '"Source Sans 3 Bold",' + I + '"Noto Sans Bold",' + I + '"Noto Sans CJK SC Bold",'),
+     '"Noto Sans Bold",' + I + '"Source Sans 3 Bold",' + I + '"Noto Sans CJK SC Bold",'),
     ('"Source Sans Pro Light",',
-     '"Source Sans 3 Light",'),
+     '"Noto Sans Light", "Source Sans 3 Light",'),
     ('"Source Sans Pro Italic",',
-     '"Source Sans 3 Italic", "Noto Sans Italic",'),
+     '"Noto Sans Italic", "Source Sans 3 Italic",'),
 ]
 n_faces = 0
 for old, new in RENAME:
