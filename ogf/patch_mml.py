@@ -84,7 +84,8 @@ for sheet in ('style/placenames.mss', 'style/admin.mss'):
 # The snapshot carries OpenTopoMap's full ladder - a different raster per zoom
 # band - commented out because it ships no rasters, and contours.mss still
 # styles every one of them. OGF publishes exactly that ladder per zone, so all
-# five are uncommented and pointed at the mosaics ogf/fetch-relief.sh builds.
+# five are uncommented and pointed at the mosaics ogf-server-scripts'
+# fetchDemData.sh builds from the bands ogf/ladder names.
 #
 # The mapping is not quite name for name: their hillshade-500 covers z5-7, which
 # is our hillshade-1000; their hillshade-90 is the fine band, which is the 1

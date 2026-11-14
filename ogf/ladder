@@ -1,0 +1,7 @@
+# The coarse bands this style draws at z1-8, one a line: ogf-server-scripts'
+# fetchDemData.sh fetches each per zone and mosaics it as dem/<band>.vrt
+relief-5000
+relief-500
+hillshade-5000
+hillshade-1000
+hillshade-500

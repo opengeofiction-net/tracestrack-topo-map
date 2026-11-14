@@ -7,7 +7,7 @@ OGF's come from gdaldem, where flat ground is a valid mid value around 180, so
 grain-merge lightens the whole of a zone's rectangle, sea included, and every
 DEM footprint shows as a box on the map.
 
-ogf/fetch-relief.sh puts them through the style's own shade.ramp first, which
+ogf-server-scripts' fetchDemData.sh puts them through the style's own shade.ramp first, which
 makes flat ground transparent and shades only slopes. That is RGBA, and multiply
 is what it wants - the same treatment CyclOSM gives the same data.
 

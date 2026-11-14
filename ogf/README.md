@@ -197,8 +197,7 @@ Then, in order:
 | `ogf/fix_contours_mss.py topo/style/contours.mss` | hillshade compositing |
 | `ogf/fix_fonts_mss.py topo/style/fonts.mss ogf/historic-faces.txt` | faces Debian has, and the historic scripts |
 | `scripts/get-external-data.py` with `ogf/external-data.yml` | water polygons, icesheet, Natural Earth boundaries |
-| `ogf/fetch-relief.sh` | the coarse relief and hillshade mosaics |
-| `cp ogf/shade.ramp ogf/zfactor dem/` | the hillshade ramp, and which strength this style wants |
+| `cp ogf/shade.ramp ogf/zfactor ogf/ladder dem/` | the hillshade ramp, which strength this style wants, and the coarse bands it draws at z1-8 |
 | `psql -d ttopo -f ogf/icesheet-column.sql` | adds `ice_edge` to the empty icesheet table |
 
 **Fonts are not optional.** The style asks for the Noto "UI" variants, which
@@ -230,16 +229,22 @@ second block only takes effect when its selector *set* differs from the first.
 **The hillshades need the ramp.** `gdaldem` gives flat ground a valid mid value,
 around 180 rather than a neutral 128, so `grain-merge` lightens the whole of a
 zone's rectangle, sea included, and every DEM footprint shows as a box on the
-map. `ogf/fetch-relief.sh` puts them through `shade.ramp` first, which makes
+map. ogf-server-scripts' `fetchDemData.sh` puts them through `shade.ramp` first, which makes
 flat ground transparent and shades only slopes, and they composite with
 `multiply` — what CyclOSM does with the same rasters. The relief rasters are
 already RGBA and are left alone.
 
 `ogf/shade.ramp` is why the 178–182 gap in it is fully transparent: that is
 where flat ground lands. Below it is black at falling alpha for shadow, above it
-white at rising alpha for highlight. Both `fetch-relief.sh` and ogf-server-scripts'
-`fetchDemData.sh` read it from `dem/shade.ramp`, so it has to be copied into
-place — neither creates it.
+white at rising alpha for highlight. ogf-server-scripts' `fetchDemData.sh`
+reads it from `dem/shade.ramp`, so it has to be copied into place — it does not
+create it.
+
+**`ogf/ladder` names the coarse bands.** `fetchDemData.sh` fetches each band it
+lists per zone, nightly with the shade, and mosaics it as `dem/<band>.vrt`, the
+files `patch_mml.py` points the relief and hillshade layers at. Until November
+2026 a separate `fetch-relief.sh` did this, run once by hand and never
+scheduled, and z1-8 drew August's rasters for three months.
 
 **`ogf/zfactor` picks the hillshade strength.** The published DEM carries several,
 and `fetchDemData.sh` fetches `hillshade-<zfactor>.tif`. cyclogf reads the soft
